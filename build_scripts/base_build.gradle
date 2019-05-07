@@ -1,0 +1,54 @@
+import config.AndroidCompileOptions
+import config.Libs
+
+apply plugin: "idea"
+apply plugin: "kotlin-android"
+apply plugin: "kotlin-android-extensions"
+apply plugin: "kotlin-kapt"
+
+// Force iml file to be namespaced using the full project structure/subfolders
+// ie. client/feature/opinion -> client-feature-opinion.iml, instead of just opinion.iml
+// Reason : Makes it easier to select modules from edit configuration when multiple modules are named the same
+idea {
+    module {
+        name project.path.substring(1).split(':').collect { it as String }.join('-')
+    }
+}
+
+android {
+    compileSdkVersion AndroidCompileOptions.compileSdkVersion
+
+    packagingOptions {
+        exclude "META-INF/LICENSE"
+        exclude "META-INF/NOTICE"
+        exclude "META-INF/LICENSE.txt"
+        exclude "META-INF/NOTICE.txt"
+        exclude "LICENSE.txt"
+    }
+
+    defaultConfig {
+        minSdkVersion AndroidCompileOptions.minSdkVersion
+        targetSdkVersion AndroidCompileOptions.targetSdkVersion
+
+        javaCompileOptions {
+            annotationProcessorOptions.includeCompileClasspath = true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility AndroidCompileOptions.javaVersion
+        targetCompatibility AndroidCompileOptions.javaVersion
+        // Workaround against error : More than one file was found with OS independent path 'META-INF/*.kotlin_module'
+        kotlinOptions.freeCompilerArgs += ["-module-name", project.path.substring(1).replace(":", ".")]
+    }
+
+    lintOptions {
+        disable 'UnsupportedChromeOsHardware', 'PermissionImpliesUnsupportedChromeOsHardware'
+        checkAllWarnings true
+        checkReleaseBuilds true
+    }
+}
+
+dependencies {
+    implementation Libs.kotlin
+}

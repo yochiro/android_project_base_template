@@ -1,0 +1,30 @@
+import config.Libs
+
+apply plugin: "com.android.application"
+apply from: rootProject.scriptFiles.baseBuildScriptFile
+
+android {
+    buildTypes {
+        debug {
+        }
+        release {
+            proguardFiles "proguard-rules.pro"
+        }
+    }
+}
+
+dependencies {
+    implementation Libs.RxJava2.rxJava2
+    implementation Libs.RxJava2.rxAndroid
+
+    implementation Libs.threetenabp
+
+    implementation Libs.AndroidX.core
+    implementation Libs.AndroidX.coreKtx
+    implementation Libs.AndroidX.fragmentKtx
+    implementation Libs.AndroidX.material
+    implementation Libs.AndroidX.fragment
+    implementation Libs.AndroidX.appcompat
+    implementation Libs.AndroidX.recyclerview
+    implementation Libs.AndroidX.constraintlayout
+}

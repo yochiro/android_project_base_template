@@ -1,0 +1,19 @@
+import config.Libs
+
+apply plugin: "kotlin-android"
+apply plugin: "kotlin-android-extensions"
+apply plugin: "kotlin-kapt"
+
+dependencies {
+    kapt Libs.Dagger.Kapt.daggerCompiler
+    kapt Libs.Dagger.Kapt.daggerProcessor
+
+    kaptAndroidTest Libs.Dagger.Kapt.daggerCompiler
+    kaptTest Libs.Dagger.Kapt.daggerProcessor
+
+    implementation Libs.Dagger.dagger
+    implementation Libs.Dagger.daggerAndroid
+    implementation Libs.Dagger.daggerAndroidX
+
+    implementation group: "com.google.code.findbugs", name: "jsr305", version: "3.0.2"
+}

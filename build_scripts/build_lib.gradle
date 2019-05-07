@@ -1,0 +1,14 @@
+apply plugin: "com.android.library"
+apply from: rootProject.scriptFiles.baseBuildScriptFile
+
+android {
+    buildTypes {
+        debug {
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile("proguard-android.txt")
+            consumerProguardFiles project.file("proguard-rules.pro")
+        }
+    }
+}
