@@ -3,8 +3,7 @@
 package config
 
 object Builds {
-    private const val androidGradlePlugin =
-        "com.android.tools.build:gradle:${BuildGradlePluginsVersions.gradlePluginVersion}"
+    private val androidGradlePlugin = AGP.lib
     private const val kotlinGradlePlugin =
         "org.jetbrains.kotlin:kotlin-gradle-plugin:${BuildGradlePluginsVersions.kotlinVersion}"
     private const val butterknifeGradlePlugin =

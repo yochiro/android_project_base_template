@@ -1,0 +1,10 @@
+import config.Libs
+
+plugins {
+    id("FeatureModule")
+}
+
+dependencies {
+    implementation Libs.AndroidX.core
+    implementation Libs.AndroidX.appcompat
+}

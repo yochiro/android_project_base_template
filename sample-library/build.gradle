@@ -1,0 +1,10 @@
+import config.Libs
+
+plugins {
+    id("LibraryModule")
+}
+
+dependencies {
+    implementation Libs.Glide.glide
+    kapt Libs.Glide.Kapt.compiler
+}

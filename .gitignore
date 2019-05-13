@@ -24,6 +24,7 @@ build
 .idea/misc.xml
 .idea/workspace.xml
 .idea/libraries
+.idea/markdown*
 
 .settings
 .gradle

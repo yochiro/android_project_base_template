@@ -1,7 +1,7 @@
 package config
 
 object BuildGradlePluginsVersions {
-    const val gradlePluginVersion = "3.4.0"
+    val gradlePluginVersion = AGP.version
     // FIXME 4.2.0 fails on incremental compilation from AS 3.3.1
     const val googleServicesGradlePluginVersion = "4.1.0"
     const val kotlinVersion = "1.3.21"
