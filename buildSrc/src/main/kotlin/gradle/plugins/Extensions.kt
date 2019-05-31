@@ -1,4 +1,4 @@
-package plugins
+package gradle.plugins
 
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
@@ -47,13 +47,57 @@ fun Project.configureBasicDeps(): Project =
         it.repositoriesFrom(config.Repos.dependenciesRepoUrls)
     }
 
+inline fun <reified T : BaseExtension> Project.proguardFiles(buildType: String, vararg files: Any): Project {
+    val extension = project.extensions.getByType(T::class.java)
+    extension.apply {
+        buildTypes { buildTypes ->
+            buildTypes.getByName(buildType).apply {
+                proguardFiles(*files)
+            }
+        }
+    }
+    return this
+}
+
+inline fun <reified T : BaseExtension> Project.consumerProguardFiles(buildType: String, vararg files: Any): Project {
+    val extension = project.extensions.getByType(T::class.java)
+    extension.apply {
+        buildTypes { buildTypes ->
+            buildTypes.getByName(buildType).apply {
+                consumerProguardFiles(*files)
+            }
+        }
+    }
+    return this
+}
+
 
 // Custom plugin extensions
+
+fun BaseExtension.configureLintOptions() {
+    lintOptions.apply {
+        warning("InvalidPackage", "NewApi", "MissingRegistered", "AppLinksAutoVerifyError", "RequiredSize")
+        disable = setOf("UnsupportedChromeOsHardware", "PermissionImpliesUnsupportedChromeOsHardware")
+        isCheckAllWarnings = true
+        isCheckReleaseBuilds = true
+        isCheckDependencies = true
+    }
+}
 
 fun BaseExtension.configureCommonBase() {
 
     compileSdkVersion(config.AndroidCompileOptions.compileSdkVersion)
 
+    packagingOptions.apply {
+        excludes = setOf(
+            "META-INF/LICENSE",
+            "META-INF/NOTICE",
+            "META-INF/LICENSE.txt",
+            "META-INF/NOTICE.txt",
+            "META-INF/MANIFEST.MF",
+            "LICENSE.txt"
+        )
+    }
     defaultConfig.apply {
         minSdkVersion(config.AndroidCompileOptions.minSdkVersion)
         targetSdkVersion(config.AndroidCompileOptions.targetSdkVersion)
@@ -67,13 +111,6 @@ fun BaseExtension.configureCommonBase() {
         sourceCompatibility = config.AndroidCompileOptions.javaVersion
         targetCompatibility = config.AndroidCompileOptions.javaVersion
     }
-
-    lintOptions.apply {
-        disable =
-            setOf("UnsupportedChromeOsHardware", "PermissionImpliesUnsupportedChromeOsHardware")
-        isCheckAllWarnings = true
-        isCheckReleaseBuilds = true
-    }
 }
 
 
@@ -83,6 +120,7 @@ fun LibraryExtension.configureLibrary() {
     buildTypes { buildTypes ->
         buildTypes.getByName("release") {
             it.isMinifyEnabled = true
+            it.consumerProguardFile("proguard-rules.pro")
         }
     }
 }

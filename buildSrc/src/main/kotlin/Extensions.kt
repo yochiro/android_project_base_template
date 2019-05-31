@@ -1,4 +1,3 @@
-import com.sun.org.apache.bcel.internal.Repository
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.dsl.RepositoryHandler
@@ -10,7 +9,7 @@ fun RepositoryHandler.maven(repoUrl: String): MavenArtifactRepository {
     return maven { it.url = URI(repoUrl) }
 }
 
-fun Project.repositoriesFrom(listOfRepos: List<String>): Project =
+fun Project.repositoriesFrom(listOfRepos: Collection<String>): Project =
     also {
 
         repositories.run {
@@ -20,7 +19,7 @@ fun Project.repositoriesFrom(listOfRepos: List<String>): Project =
         }
     }
 
-fun Project.implementationDependenciesFrom(listOfDeps: List<String>): Project =
+fun Project.implementationDependenciesFrom(listOfDeps: Collection<String>): Project =
     also {
         dependencies.run {
             listOfDeps.forEach { dep ->
@@ -29,7 +28,7 @@ fun Project.implementationDependenciesFrom(listOfDeps: List<String>): Project =
         }
     }
 
-fun Project.annotationProcessors(listOfDeps: List<String>): Project =
+fun Project.annotationProcessors(listOfDeps: Collection<String>): Project =
     also {
         dependencies.run {
             listOfDeps.forEach { dep ->
@@ -38,7 +37,7 @@ fun Project.annotationProcessors(listOfDeps: List<String>): Project =
         }
     }
 
-fun ScriptHandlerScope.repositoriesFrom(listOfRepos: List<String>) {
+fun ScriptHandlerScope.repositoriesFrom(listOfRepos: Collection<String>) {
     repositories.run {
         listOfRepos.forEach { repo ->
             maven(repo)
@@ -77,3 +76,5 @@ fun DependencyHandler.kaptTest(dependency: Any) {
 fun DependencyHandler.kaptAndroidTest(dependency: Any) {
     add("kaptAndroidTest", dependency)
 }
+
+

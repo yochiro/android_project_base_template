@@ -1,0 +1,5 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.ymkm.android.sample_app">
+
+    <application android:label="SampleApp" />
+</manifest>

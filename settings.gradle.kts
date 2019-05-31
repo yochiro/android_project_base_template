@@ -1,5 +1,5 @@
 include(
-    ":sample-feature",
-    ":sample-library",
-    ":sample-app"
+    ":samplefeature",
+    ":samplelibrary",
+    ":sampleapp"
 )

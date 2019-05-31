@@ -1,11 +1,13 @@
 @file:Suppress("CanSealedSubClassBeObject")
-package plugins
+
+package gradle.plugins
 
 import annotationProcessors
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
+import com.android.build.gradle.ProguardFiles.getDefaultProguardFile
 import config.Libs
 import implementationDependenciesFrom
 import kaptAndroidTest
@@ -28,8 +30,11 @@ sealed class BaseAndroidPlugin : Plugin<Project> {
                 }
                 is LibraryPlugin -> {
                     val extension = project.extensions.getByType(LibraryExtension::class.java)
-                    extension.configureCommonBase()
-                    extension.configureLibrary()
+                    extension.apply {
+                        configureCommonBase()
+                        configureLintOptions()
+                        configureLibrary()
+                    }
                     project.useKotlin()
                         .configureBasicDeps()
                         .repositoriesFrom(config.Repos.dependenciesRepoUrls)
@@ -37,7 +42,10 @@ sealed class BaseAndroidPlugin : Plugin<Project> {
                 }
                 is AppPlugin -> {
                     val extension = project.extensions.getByType(AppExtension::class.java)
-                    extension.configureCommonBase()
+                    extension.apply {
+                        configureCommonBase()
+                        configureLintOptions()
+                    }
                     project.useKotlin()
                         .configureBasicDeps()
                         .repositoriesFrom(config.Repos.dependenciesRepoUrls)
@@ -49,15 +57,21 @@ sealed class BaseAndroidPlugin : Plugin<Project> {
 }
 
 
+private val libraryDependencyList = setOf(
+    Libs.threetenabp,
+    Libs.AndroidX.annotation
+)
+
 class LibraryModule : BaseAndroidPlugin() {
 
     override fun apply(project: Project) {
         project.plugins.apply("com.android.library")
         super.apply(project)
+        project.implementationDependenciesFrom(libraryDependencyList)
     }
 }
 
-private val featureDependencyList = listOf(
+private val featureDependencyList = libraryDependencyList + setOf(
     Libs.AndroidX.core,
     Libs.AndroidX.coreKtx,
     Libs.AndroidX.fragmentKtx,
@@ -84,19 +98,32 @@ class AppModule : BaseAndroidPlugin() {
         super.apply(project)
         project.implementationDependenciesFrom(
             featureDependencyList +
-                    listOf(
+                    setOf(
                         Libs.RxJava2.rxJava2,
-                        Libs.RxJava2.rxAndroid,
-
-                        Libs.threetenabp
+                        Libs.RxJava2.rxAndroid
                     )
         )
+        project.proguardFiles<AppExtension>("release", getDefaultProguardFile("proguard-android.txt", project))
+            .consumerProguardFiles<AppExtension>("release", "proguard-rules.pro")
+        project.extensions.getByType(AppExtension::class.java).apply {
+            buildTypes { buildTypes ->
+                buildTypes.getByName("release").apply {
+                    isMinifyEnabled = true
+                    isShrinkResources = true
+                }
+                buildTypes.getByName("debug").apply {
+                    isMinifyEnabled = false
+                    isShrinkResources = false
+                }
+            }
+        }
     }
 }
 
 class ButterknifeModule : Plugin<Project> {
 
     override fun apply(project: Project) {
+        project.apply(plugin = "com.jakewharton.butterknife")
         project.useKotlin()
             .implementationDependenciesFrom(
                 listOf(Libs.Butterknife.core)
@@ -128,6 +155,36 @@ class DaggerModule : Plugin<Project> {
             kaptAndroidTest(Libs.Dagger.Kapt.daggerCompiler)
             kaptTest(Libs.Dagger.Kapt.daggerProcessor)
         }
+    }
+}
+
+class GlideModule : Plugin<Project> {
+
+    override fun apply(project: Project) {
+        val glideProguardFile = project.rootProject.file("buildSrc/src/main/resources/glide-proguard-rules.pro")
+        project.plugins.all {
+            when (it) {
+                is LibraryPlugin -> {
+                    project.consumerProguardFiles<LibraryExtension>("release", glideProguardFile)
+                }
+                is AppPlugin -> {
+                    project.proguardFiles<AppExtension>("release", glideProguardFile)
+                }
+            }
+        }
+        project.useKotlin()
+            .implementationDependenciesFrom(
+                listOf(
+                    Libs.Glide.glide,
+                    Libs.Glide.annotations,
+                    Libs.Glide.webpdecoder
+                )
+            )
+            .annotationProcessors(
+                listOf(
+                    Libs.Glide.Kapt.compiler
+                )
+            )
     }
 }
 
@@ -163,3 +220,4 @@ class ArchModule : Plugin<Project> {
             )
     }
 }
+
